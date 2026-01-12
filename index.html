@@ -38,18 +38,18 @@
     .layout{display:flex;min-height:calc(100vh - 56px)}
 
     .sidebar{
-      width:240px;
+      width:230px;
       background:var(--panel);
       border-right:1px solid var(--line);
       padding:12px 10px;
     }
     .nav-title{font-size:12px;color:var(--muted);margin:10px 10px 6px}
-    .nav a{display:flex;align-items:center;gap:10px;padding:10px 10px;margin:2px 6px;border-radius:10px;color:var(--text);text-decoration:none;font-size:14px;}
-    .nav a.active{background:#eef4ff;color:#0b4fd6;font-weight:700}
-    .nav a:hover{background:#f2f4f7}
+    .nav a{display:flex;align-items:center;gap:10px;padding:10px 10px;margin:2px 6px;border-radius:10px;color:var(--text);text-decoration:none;font-size:14px;transition:all .15s ease;}
+    .nav a.active{background:#eef4ff;color:#0b4fd6;font-weight:700;box-shadow:inset 0 0 0 1px rgba(11,79,214,.12);}
+    .nav a:hover{background:#f2f4f7;transform:translateX(2px)}
 
-    .content{flex:1;padding:18px;background:transparent}
-    .container{max-width:1280px;margin:0;}
+    .content{flex:1;padding:18px 14px;background:transparent}
+    .container{max-width:1480px;margin:0 auto;padding:0 4px;}
 
     .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
     .card-header{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
@@ -57,11 +57,10 @@
     .subtitle{font-size:12px;color:var(--muted);margin-top:6px}
 
     .filters{padding:14px 18px;border-bottom:1px solid var(--line)}
-    .grid{display:grid;grid-template-columns: 220px 220px minmax(360px, 1fr) 180px;gap:10px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
     .field label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}
     .field input,.field select{width:100%;height:36px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:#fff;outline:none;}
     .field input:focus,.field select:focus{border-color:#c9d7ff;box-shadow:0 0 0 4px rgba(22,119,255,.12)}
-    .field.remark{min-width:360px}
     .field.remark input{width:100%}
 
     .actions{display:flex;gap:10px;margin-top:12px}
@@ -83,10 +82,10 @@
       position:sticky;
       top:0;
       z-index:1;
-      white-space:nowrap;
     }
     tbody td{padding:14px;border-bottom:1px solid var(--line);vertical-align:top;font-size:14px;}
     tbody tr:hover{background:#fbfcff}
+    th,td{word-break:break-word;}
 
     .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
     .muted{color:var(--muted);font-size:12px}
@@ -98,6 +97,14 @@
     .row-actions{display:flex;gap:12px;flex-wrap:wrap}
     .link{border:none;background:none;color:#0b4fd6;cursor:pointer;padding:0;font-size:14px}
     .link.danger{color:var(--danger)}
+
+    .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px 10px;}
+    .metric{display:flex;justify-content:space-between;gap:6px;align-items:center;font-size:13px;padding:6px 10px;border:1px dashed var(--line);border-radius:10px;background:#f9fafb;}
+    .metric .label{color:var(--muted);font-size:12px}
+
+    .radio-group{display:flex;flex-wrap:wrap;gap:10px 16px;}
+    .radio{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);}
+    .radio input{width:14px;height:14px;}
 
     /* Modal */
     .modal-backdrop{position:fixed;inset:0;background:rgba(16,24,40,.48);display:none;align-items:center;justify-content:center;padding:18px;z-index:50;}
@@ -127,8 +134,14 @@
     .toast.danger{border-color:#fecdca}
 
     @media (max-width: 1100px){
-      .sidebar{display:none}
-      .grid{grid-template-columns: 1fr 1fr;}
+      .layout{flex-direction:column}
+      .sidebar{width:100%;border-right:none;border-bottom:1px solid var(--line);display:flex;overflow:auto;}
+      .nav{display:flex;gap:6px;padding:4px 8px;}
+      .nav-title{display:none}
+      .grid{grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));}
+      thead th{position:static}
+      .card-header{flex-direction:column}
+      .metric{padding:6px 8px}
     }
   </style>
 </head>
@@ -142,15 +155,14 @@
     <aside class="sidebar">
       <div class="nav">
         <div class="nav-title">导航</div>
-        <a href="#" class="active">API账号管理</a>
-        <a href="#">导出记录</a>
-        <a href="#">通讯录</a>
+        <a href="#" class="active" data-page-target="client">客户端 - API账号管理</a>
+        <a href="#" data-page-target="admin">管理后台 - 企业管理</a>
       </div>
     </aside>
 
     <main class="content">
       <div class="container">
-        <section class="card">
+        <section class="card page" data-page="client">
           <div class="card-header">
             <div>
               <h1 class="title">API账号管理</h1>
@@ -202,26 +214,23 @@
             <table>
               <thead>
                 <tr>
-                  <th style="min-width:130px;">账号</th>
-                  <th style="min-width:210px;">密钥</th>
-                  <th style="min-width:110px;">付费者</th>
-                  <th style="min-width:120px;">IP白名单</th>
-                  <th style="min-width:170px;">状态报告接收地址</th>
-                  <th style="min-width:170px;">上行接收地址</th>
-                  <th style="min-width:130px;">所属登录账号</th>
-                  <th style="min-width:90px;">状态</th>
-                  <th style="min-width:150px;">备注</th>
-
-                  <th style="min-width:130px;">发送管控状态</th>
-                  <th style="min-width:110px;">剩余可发(段)</th>
-                  <th style="min-width:90px;">已用(段)</th>
-                  <th style="min-width:120px;">管控模式</th>
-
-                  <th style="min-width:220px;">操作</th>
+                  <th>账号</th>
+                  <th>密钥</th>
+                  <th>付费者</th>
+                  <th>IP白名单</th>
+                  <th>状态报告接收地址</th>
+                  <th>上行接收地址</th>
+                  <th>所属登录账号</th>
+                  <th>状态</th>
+                  <th>备注</th>
+                  <th>发送管控状态</th>
+                  <th>管控初始值/用量</th>
+                  <th>管控模式</th>
+                  <th>操作</th>
                 </tr>
               </thead>
               <tbody id="rows">
-                <tr data-api="zipirbj2" data-control="off">
+                <tr data-api="zipirbj2" data-control="off" data-control-row>
                   <td class="mono">zipirbj2</td>
                   <td class="mono">717478ddfa0bdc43c<br><span class="muted">（示例）</span></td>
                   <td>企业</td>
@@ -233,8 +242,7 @@
                   <td class="muted">-</td>
 
                   <td data-col="controlState"></td>
-                  <td data-col="remaining"></td>
-                  <td data-col="used"></td>
+                  <td data-col="metrics"></td>
                   <td data-col="mode"></td>
 
                   <td>
@@ -248,7 +256,7 @@
                   </td>
                 </tr>
 
-                <tr data-api="fyqcs02" data-control="on" data-remaining="1200" data-used="300" data-mode="once">
+                <tr data-api="fyqcs02" data-control="on" data-remaining="1200" data-used="300" data-mode="once" data-control-row>
                   <td class="mono">fyqcs02</td>
                   <td class="mono">acf8bba8f2adceff731<br><span class="muted">（示例）</span></td>
                   <td>接口账号</td>
@@ -260,8 +268,7 @@
                   <td class="muted">-</td>
 
                   <td data-col="controlState"></td>
-                  <td data-col="remaining"></td>
-                  <td data-col="used"></td>
+                  <td data-col="metrics"></td>
                   <td data-col="mode"></td>
 
                   <td>
@@ -275,7 +282,7 @@
                   </td>
                 </tr>
 
-                <tr data-api="hgcmp2" data-control="limit" data-remaining="0" data-used="5000" data-mode="cycle-month" data-cycle-type="month" data-cycle-quota="5000">
+                <tr data-api="hgcmp2" data-control="limit" data-remaining="0" data-used="5000" data-mode="cycle-month" data-cycle-type="month" data-cycle-quota="5000" data-control-row>
                   <td class="mono">hgcmp2</td>
                   <td class="mono">d41d8cd98f00b204e<br><span class="muted">（示例）</span></td>
                   <td>接口账号</td>
@@ -287,8 +294,7 @@
                   <td class="muted">-</td>
 
                   <td data-col="controlState"></td>
-                  <td data-col="remaining"></td>
-                  <td data-col="used"></td>
+                  <td data-col="metrics"></td>
                   <td data-col="mode"></td>
 
                   <td>
@@ -299,6 +305,99 @@
                       <button class="link" type="button">下载API文档</button>
                       <button class="link" type="button" data-action="set-control">发送管控设置</button>
                                           </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="card page" data-page="admin" style="display:none;">
+          <div class="card-header">
+            <div>
+              <h1 class="title">企业管理（管理后台视图）</h1>
+              <div class="subtitle">API接口账号总览与发送管控配置</div>
+            </div>
+            <div class="muted">API账号上限：<span class="mono">30</span></div>
+          </div>
+
+          <div style="overflow:auto;max-height:calc(100vh - 220px);">
+            <table>
+              <thead>
+                <tr>
+                  <th>账号</th>
+                  <th>密钥</th>
+                  <th>IP白名单</th>
+                  <th>状态报告接收地址</th>
+                  <th>上行接收地址</th>
+                  <th>所属登录账号</th>
+                  <th>备注</th>
+                  <th>状态</th>
+                  <th>发送管控状态</th>
+                  <th>管控初始值/用量</th>
+                  <th>管控模式</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr data-api="zipirbj2" data-control="off" data-control-row>
+                  <td class="mono">zipirbj2</td>
+                  <td class="mono">717478ddfa0bdc43c</td>
+                  <td class="mono">0.0.0.0</td>
+                  <td class="mono">-</td>
+                  <td class="mono">-</td>
+                  <td class="mono">18214024361</td>
+                  <td class="muted">-</td>
+                  <td>禁用</td>
+                  <td data-col="controlState"></td>
+                  <td data-col="metrics"></td>
+                  <td data-col="mode"></td>
+                  <td>
+                    <div class="row-actions">
+                      <button class="link" type="button">启用</button>
+                      <button class="link" type="button">编辑</button>
+                      <button class="link" type="button" data-action="set-control">发送管控设置</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr data-api="fyqcs02" data-control="on" data-remaining="100" data-used="300" data-mode="once" data-control-row>
+                  <td class="mono">fyqcs02</td>
+                  <td class="mono">acf8bba8f2adceff731</td>
+                  <td class="mono">0.0.0.0</td>
+                  <td class="mono">-</td>
+                  <td class="mono">-</td>
+                  <td class="mono">15912982512</td>
+                  <td class="muted">-</td>
+                  <td>正常</td>
+                  <td data-col="controlState"></td>
+                  <td data-col="metrics"></td>
+                  <td data-col="mode"></td>
+                  <td>
+                    <div class="row-actions">
+                      <button class="link danger" type="button">禁用</button>
+                      <button class="link" type="button">编辑</button>
+                      <button class="link" type="button" data-action="set-control">发送管控设置</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr data-api="hgcmp2" data-control="on" data-mode="cycle-month" data-cycle-type="month" data-cycle-quota="5000" data-remaining="5000" data-used="0" data-control-row>
+                  <td class="mono">hgcmp2</td>
+                  <td class="mono">d41d8cd98f00b204e</td>
+                  <td class="mono">111.194.122.208</td>
+                  <td class="mono">http://39.98.72.59:33219/callback/invoke2</td>
+                  <td class="mono">http://39.98.72.59:33219/callback/invoke2</td>
+                  <td class="mono">15912982512</td>
+                  <td class="muted">-</td>
+                  <td>正常</td>
+                  <td data-col="controlState"></td>
+                  <td data-col="metrics"></td>
+                  <td data-col="mode"></td>
+                  <td>
+                    <div class="row-actions">
+                      <button class="link danger" type="button">禁用</button>
+                      <button class="link" type="button">编辑</button>
+                      <button class="link" type="button" data-action="set-control">发送管控设置</button>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -345,12 +444,16 @@
           </div>
 
           <div class="field span-2" id="onceWrap">
-            <label>可发余量(段)</label>
-            <input id="onceRemaining" type="number" min="0" placeholder="请输入一次性可发余量" />
+            <label>管控初始值</label>
+            <input id="onceRemaining" type="number" min="0" placeholder="请输入一次性管控初始值" />
+            <div class="radio-group" style="margin-top:8px;">
+              <label class="radio"><input type="radio" name="onceStrategy" value="accumulate" checked /> 沿用历史已用量（累积）</label>
+              <label class="radio"><input type="radio" name="onceStrategy" value="reset" /> 重新开始计数（清零已用量）</label>
+            </div>
           </div>
 
           <div class="field span-2" id="cycleWrap" style="display:none;">
-            <label>每周期可发量(段)</label>
+            <label>每周期可发量</label>
             <input id="cycleQuota" type="number" min="0" placeholder="请输入每周期可发量" />
           </div>
         </div>
@@ -366,7 +469,10 @@
 
   <script>
     const STORAGE_KEY = 'sendControlPrototypeStateV1';
+    const PAGE_KEY = 'sendControlActivePage';
     const state = new Map();
+    const pages = document.querySelectorAll('.page');
+    const navLinks = document.querySelectorAll('[data-page-target]');
 
     function toInt(v, fallback = 0) {
       const n = Number.parseInt(v, 10);
@@ -397,18 +503,38 @@
       return `<span class="tag success">已开启</span>`;
     }
 
+    function controlMetrics(cfg) {
+      if (!cfg.enabled) return `<span class="muted">-</span>`;
+      return `
+        <div class="metrics">
+          <div class="metric"><span class="label">管控值</span><span class="mono">${cfg.quota}</span></div>
+          <div class="metric"><span class="label">已用</span><span class="mono">${cfg.used}</span></div>
+          <div class="metric"><span class="label">剩余</span><span class="mono">${cfg.remaining}</span></div>
+        </div>
+      `;
+    }
+
     function renderRow(row) {
       const api = row.getAttribute('data-api');
       const cfg = state.get(api);
+      const quota = cfg.mode === 'cycle' ? toInt(cfg.cycleQuota ?? cfg.quota, 0) : toInt(cfg.quota, 0);
+      const used = toInt(cfg.used, 0);
+      const remaining = cfg.enabled ? Math.max(0, quota - used) : 0;
+
+      cfg.quota = quota;
+      cfg.used = used;
+      cfg.remaining = remaining;
+      cfg.onceStrategy = cfg.onceStrategy || 'accumulate';
 
       row.querySelector('[data-col="controlState"]').innerHTML = controlTag(cfg);
-      row.querySelector('[data-col="remaining"]').innerHTML = cfg.enabled ? `<span class="mono">${cfg.remaining}</span>` : `<span class="muted">-</span>`;
-      row.querySelector('[data-col="used"]').innerHTML = cfg.enabled ? `<span class="mono">${cfg.used}</span>` : `<span class="muted">-</span>`;
+      row.querySelector('[data-col="metrics"]').innerHTML = controlMetrics(cfg);
       row.querySelector('[data-col="mode"]').innerHTML = cfg.enabled ? modeLabel(cfg) : `<span class="muted">-</span>`;
 
       row.setAttribute('data-control', cfg.enabled ? (cfg.remaining <= 0 ? 'limit' : 'on') : 'off');
       row.setAttribute('data-remaining', String(cfg.remaining));
       row.setAttribute('data-used', String(cfg.used));
+      row.setAttribute('data-quota', String(cfg.quota));
+      row.setAttribute('data-once-strategy', cfg.onceStrategy);
       row.setAttribute('data-mode', cfg.mode === 'cycle' ? `cycle-${cfg.cycleType}` : 'once');
       if (cfg.mode === 'cycle') {
         row.setAttribute('data-cycle-type', cfg.cycleType);
@@ -420,23 +546,26 @@
     }
 
     function renderAll() {
-      document.querySelectorAll('#rows tr[data-api]').forEach(renderRow);
+      document.querySelectorAll('tr[data-control-row]').forEach(renderRow);
       persist();
     }
 
     function initFromDom() {
-      document.querySelectorAll('#rows tr[data-api]').forEach((row) => {
+      document.querySelectorAll('tr[data-control-row]').forEach((row) => {
         const api = row.getAttribute('data-api');
         const control = row.getAttribute('data-control');
         const enabled = control !== 'off';
         const modeAttr = row.getAttribute('data-mode') || 'once';
         const mode = modeAttr.startsWith('cycle') ? 'cycle' : 'once';
         const cycleType = row.getAttribute('data-cycle-type') || (modeAttr.endsWith('day') ? 'day' : 'month');
-        const remaining = toInt(row.getAttribute('data-remaining'), enabled ? 0 : 0);
-        const used = toInt(row.getAttribute('data-used'), enabled ? 0 : 0);
+        const remainingAttr = toInt(row.getAttribute('data-remaining'), 0);
+        const used = toInt(row.getAttribute('data-used'), 0);
         const cycleQuota = toInt(row.getAttribute('data-cycle-quota'), 0);
-        const quota = enabled ? (mode === 'cycle' ? cycleQuota : (remaining + used)) : (remaining + used);
-        state.set(api, { api, enabled, mode, cycleType, remaining, used, cycleQuota, quota });
+        const onceStrategy = row.getAttribute('data-once-strategy') || 'accumulate';
+        const explicitQuota = toInt(row.getAttribute('data-quota'), -1);
+        const quota = explicitQuota >= 0 ? explicitQuota : (mode === 'cycle' ? (cycleQuota || (remainingAttr + used)) : (remainingAttr + used));
+        const remaining = enabled ? Math.max(0, (mode === 'cycle' ? (cycleQuota || quota) : quota) - used) : Math.max(0, remainingAttr);
+        state.set(api, { api, enabled, mode, cycleType, remaining, used, cycleQuota: cycleQuota || quota, quota, onceStrategy });
       });
     }
 
@@ -456,6 +585,26 @@
         }
       } catch (_) {}
     }
+
+    /* Page switch */
+    function switchPage(page) {
+      pages.forEach((p) => {
+        p.style.display = p.getAttribute('data-page') === page ? '' : 'none';
+      });
+      navLinks.forEach((link) => {
+        const active = link.getAttribute('data-page-target') === page;
+        link.classList.toggle('active', active);
+      });
+      try { localStorage.setItem(PAGE_KEY, page); } catch (_) {}
+    }
+
+    navLinks.forEach((link) => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = link.getAttribute('data-page-target') || 'client';
+        switchPage(target);
+      });
+    });
 
     /* Modal helpers */
     const modalControl = document.getElementById('modalControl');
@@ -498,6 +647,7 @@
     const cycleType = document.getElementById('cycleType');
     const onceWrap = document.getElementById('onceWrap');
     const onceRemaining = document.getElementById('onceRemaining');
+    const onceStrategyRadios = document.querySelectorAll('input[name=\"onceStrategy\"]');
     const cycleWrap = document.getElementById('cycleWrap');
     const cycleQuota = document.getElementById('cycleQuota');
 
@@ -508,7 +658,18 @@
       onceWrap.style.display = isCycle ? 'none' : '';
     }
 
-    controlMode.addEventListener('change', syncModeUI);
+    controlMode.addEventListener('change', () => {
+      const prev = controlMode.getAttribute('data-prev-mode');
+      const current = controlMode.value;
+      syncModeUI();
+      if (prev && prev !== current) {
+        onceRemaining.value = '';
+        cycleQuota.value = '';
+        cycleType.value = 'day';
+        onceStrategyRadios.forEach((r) => { r.checked = r.value === 'accumulate'; });
+      }
+      controlMode.setAttribute('data-prev-mode', current);
+    });
 
     function openControl(api) {
       const cfg = state.get(api);
@@ -516,8 +677,11 @@
       controlApi.setAttribute('data-api', api);
       controlEnabled.checked = !!cfg.enabled;
       controlMode.value = cfg.mode;
+      controlMode.setAttribute('data-prev-mode', cfg.mode);
       cycleType.value = cfg.cycleType;
       onceRemaining.value = cfg.mode === 'once' ? String(cfg.quota ?? (cfg.remaining + cfg.used)) : '';
+      const strategy = cfg.onceStrategy || 'accumulate';
+      onceStrategyRadios.forEach((r) => { r.checked = r.value === strategy; });
       cycleQuota.value = cfg.mode === 'cycle' ? String(cfg.cycleQuota || cfg.quota || (cfg.remaining + cfg.used)) : '';
       syncModeUI();
       showModal(modalControl);
@@ -528,18 +692,32 @@
       const cfg = state.get(api);
       const enabled = controlEnabled.checked;
       const mode = controlMode.value;
+      const modeChanged = mode !== cfg.mode;
       const next = { ...cfg, enabled, mode };
 
       if (enabled) {
         if (mode === 'once') {
           const quota = toInt(onceRemaining.value, -1);
-          if (quota < 0) return toast('danger', '保存失败', '请填写“可发余量(段)”。');
+          if (quota < 0) return toast('danger', '保存失败', '请填写“管控初始值”。');
+          const strategy = Array.from(onceStrategyRadios).find((r) => r.checked)?.value || 'accumulate';
+          if (!modeChanged && strategy === 'reset' && cfg.onceStrategy !== 'reset') {
+            const ok = window.confirm('确定重新开始计数吗？已用量将被清零且不可恢复。');
+            if (!ok) return;
+            next.used = 0;
+          }
+          if (modeChanged) next.used = 0;
+          next.onceStrategy = strategy;
           next.quota = quota;
-          next.remaining = Math.max(0, quota - next.used);
+          const used = toInt(next.used, 0);
+          next.remaining = Math.max(0, quota - used);
         } else {
           next.cycleType = cycleType.value;
           const quota = toInt(cycleQuota.value, -1);
-          if (quota < 0) return toast('danger', '保存失败', '请填写“每周期可发量(段)”。');
+          if (quota < 0) return toast('danger', '保存失败', '请填写“每周期可发量”。');
+          if (modeChanged) {
+            next.used = 0;
+            next.onceStrategy = undefined;
+          }
           next.cycleQuota = quota;
           next.quota = quota;
           next.remaining = Math.max(0, quota - next.used);
@@ -552,10 +730,11 @@
       toast('success', '已保存', `API账号 ${api} 的发送管控设置已经更新。`);
     });
 
-        initFromDom();
+    initFromDom();
     restore();
     renderAll();
     syncModeUI();
+    switchPage(localStorage.getItem(PAGE_KEY) || 'client');
   </script>
 </body>
 </html>
